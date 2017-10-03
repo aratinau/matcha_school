@@ -1,0 +1,25 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+
+<form action="/upload-target" class="dropzone" id="myAwesomeDropzone"></form>
+
+<a class="btn btn-default" href="/update-profile">Go to my profile</a>
+
+{% endblock %}
+
+{% block javascript %}
+	/*
+	var maxFiles;
+	$.get('/get-total-photos', function(data, status) {
+		var obj = JSON.stringify(data);
+		maxFiles = 5 - parseInt(JSON.parse(obj).obj.countphotos);
+		console.log(maxFiles);
+	});
+	*/
+
+	Dropzone.options.myAwesomeDropzone = {
+		acceptedFiles: 'image/*',
+		maxFiles: {{ countphotos }}
+	};
+{% endblock %}

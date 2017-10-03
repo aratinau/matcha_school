@@ -1,0 +1,17 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+
+<form method="post">
+<select name="tag" class="form-control select-tag" multiple="multiple">
+{% for tag in tags %}
+	<option value="{{ tag.name }}">{{ tag.name }}</option>
+{% endfor %}
+</select>
+<input type="submit">
+</form>
+
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}

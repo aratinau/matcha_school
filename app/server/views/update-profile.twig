@@ -1,0 +1,140 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+
+<div class="row">
+	{% for key, photo in photos %}
+	<div class="col-xs-6 col-md-3 {% if user.avatar == photo['_writeStream']['path'] %}active{% endif %}">
+		
+		<p class="active-avatar">this is the avatar</p>
+		
+		<a class="choose-avatar" href="/choose-as-avatar?avatar={{ photo['_writeStream']['path'] }}">choose as avatar</a>
+		<a href="" class="thumbnail">
+			<img class="img-profile" src="{{ photo['_writeStream']['path'] }}" >
+		</a>
+	</div>
+	{% endfor %}
+</div>
+<a class="btn btn-default" href="update-photos">Upload photos</a>
+
+<form method="post">
+
+Interest tags
+<select name="tags" class="form-control select-tag" multiple="multiple">
+{% for tag in tags %}
+	<option value="{{ tag.name }}" 
+	{% for tag_user in user.tags %}
+	{% if tag_user == tag.name %}selected="selected"{% endif %}
+	{% endfor %}
+	>{{ tag.name }}</option>
+{% endfor %}
+</select>
+
+I'm a 
+<label class="radio-inline">
+  <input type="radio" name="sex" id="inlineRadio1" value="men" {% if value.sex == 'men' %}checked="checked"{% endif %}> men
+</label>
+<label class="radio-inline">
+  <input type="radio" name="sex" id="inlineRadio2" value="women" {% if value.sex == 'women' %}checked="checked"{% endif %}> women
+</label>
+
+<br>
+
+Interested by
+<label class="checkbox-inline">
+  <input type="checkbox" name="interested_by_men" {% if value.interested_by_men == 'on' %}checked="checked"{% endif %}> men
+</label>
+<label class="checkbox-inline">
+  <input type="checkbox" name="interested_by_women" {% if value.interested_by_women == 'on' %}checked="checked"{% endif %}> women
+</label>
+
+  <div class="form-group">
+    <textarea class="form-control" rows="3" name="bio" placeholder="Biography">{{ value.bio }}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="inputDateOfBirth">Date of Birth</label>
+    <input type="hidden" class="form-control" id="inputDateOfBirth" placeholder="Date Of Birth" name="dateOfBirth" value="{{ value.dateOfBirth }}">
+  	<div id="datetimepicker12"></div>
+  </div>
+
+
+  <div class="form-group">
+    <label for="inputFirstName">First Name</label>
+    <input type="text" class="form-control" id="inputFirstName" placeholder="First name" name="firstname" value="{{ value.firstname }}">
+  </div>
+  <div class="form-group">
+    <label for="inputLastName">Last Name</label>
+    <input type="text" class="form-control" id="inputLastName" placeholder="Last name" name="lastname" value="{{ value.lastname }}">
+  </div>
+  <div class="form-group">
+    <label for="inputUsername">Username</label>
+    <input type="text" class="form-control" id="inputUsername" placeholder="Username" name="user" value="{{ value.user }}">
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+{% endblock %}
+
+{% block javascript %}
+$( document ).ready(function() {
+	var img = $('.img-profile');
+	for (var i = 0; i < img.length; i++) {
+		img[i].onclick = function (e) {
+			e.preventDefault();
+			if (window.confirm('Delete ?')) {
+				var fd = new FormData();
+				var clean_name_img = this.src.split('/');
+				clean_name_img = clean_name_img[clean_name_img.length - 1];
+				$.post("/delete-picture", { json_string:JSON.stringify({'name_img':clean_name_img}) });
+				$(this).parent().parent().remove();
+			}
+		}
+	}
+	$('.select-tag').select2({
+		tags: true,
+		tokenSeparators: [',', ' ']
+	});
+	var check_avatar = function (actual) {
+		$('.choose-avatar').each(function() {
+			var that = $(this);
+			that.prev().hide();
+			that.next().css('border', '0px solid black');
+			that.show();
+			if (that.parent().hasClass('active'))
+			{
+				that.prev().show();
+				that.next().css('border', '1px solid black');
+				that.hide();
+			}
+			if (actual != undefined)
+			{
+				if (that.parent() != actual.parent())
+				{
+					that.parent().removeClass('active');
+				}
+			}
+		});
+	}
+	$('.choose-avatar').click(function (e) {
+		e.preventDefault();
+		var that = $(this);
+		var value = that.attr('href').split('/')[that.attr('href').split('/').length - 1];
+		$.post("/choose-as-avatar", { val: value });
+		that.parent().addClass('active');
+		check_avatar(that);
+	});
+	check_avatar($('.active'));
+
+	$('#datetimepicker12').datetimepicker({
+		inline: true,
+		sideBySide: true,
+		format: 'YYYY-MM-DD',
+		defaultDate: moment("{{ value.dateOfBirth }}", "YYYY-MM-DD")
+	});
+	$('#datetimepicker12').on("dp.change", function(e){
+		var that = $(this);
+		$('#inputDateOfBirth').val(moment(that.data("DateTimePicker").date()).format('YYYY-MM-DD'));
+	});
+});
+{% endblock %}

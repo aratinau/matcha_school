@@ -1,0 +1,23 @@
+{
+  "name": "matcha",
+  "description": "meet and make love",
+  "main": "",
+  "authors": [
+    "aratinau"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "eonasdan-bootstrap-datetimepicker": "^4.17.37",
+    "seiyria-bootstrap-slider": "^7.1.1",
+    "select2": "select2/select2#^4.0.3",
+    "select2-bootstrap-theme": "^0.1.0-beta.7"
+  }
+}

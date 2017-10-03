@@ -1,0 +1,12 @@
+{% for message in messages %}
+
+{% if iam == message.from %}
+<b>{{ message.from }}</b>
+{% elseif iam == message.to %}
+<b>{{ message.from }}</b>
+{% endif %}
+
+{{ message.message }}
+
+<br>
+{% endfor %}

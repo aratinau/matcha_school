@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {# <link rel="icon" href="../../favicon.ico"> #}
+    <title>matcha</title>
+    <link rel="stylesheet" href="https://bootswatch.com/flatly/bootstrap.min.css">
+    <link rel="stylesheet" href="/dropzone.css">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="stylesheet" href="/css/animate.css">
+    <link rel="stylesheet" href="../bower_components/select2-bootstrap-theme/dist/select2-bootstrap.min.css">
+    <link rel="stylesheet" href="../bower_components/select2/dist/css/select2.min.css">
+
+    <link rel="stylesheet" href="../bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+
+    <link rel="stylesheet" href="../bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.min.css" />
+
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Matcha</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        {% if session.user == undefined %}
+         <li><a href="/register">Register</a></li>
+         <li><a href="/login">Login</a></li>
+        {% else %}
+		  <li class="dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ session.user.user }} <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+			  <li><a href="/update-profile">my profile</a></li>
+			  <li><a href="/update-photos">my photos</a></li>
+			  <li role="separator" class="divider"></li>
+			  <li><a href="/update-settings">my settings</a></li>
+			  <li role="separator" class="divider"></li>
+			  <li><a href="/history">my history</a></li>
+			  <li role="separator" class="divider"></li>
+			  <li><a href="/logout">logout</a></li>
+			</ul>
+		  </li>
+		  {# <li><a href="/all-users">all-users</a></li> #}
+		  <li><a href="/find">find</a></li>
+        {% endif %}
+      </ul>
+
+      {% if session.user %}
+      <ul class="nav navbar-nav navbar-right">
+		<li class="dropdown">
+			<a href="#" id="notifications">
+				<span id="count-notifications" class="badge">0</span>
+			</a>
+		</li>
+      </ul>
+      {% endif %}
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</div>
+</nav>
+
+    <div class="container">
+
+	{% if flash.info %}
+	<div class="alert alert-info" role="alert">
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	{{ flash.info }}</div>
+	{% endif %}
+	{% if flash.success %}
+	<div class="alert alert-success" role="alert">
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	{{ flash.success }}</div>
+	{% endif %}
+	{% if flash.danger %}
+	<div class="alert alert-danger" role="alert">
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	{{ flash.danger }}</div>
+	{% endif %}
+
+	<div id="content-notifications"></div>
+
+	{% block content %}{% endblock %}
+
+    </div> <!-- /container -->
+
+    <script src="/vendor/jquery-2.2.3.min.js"></script>
+    <script src="/vendor/jquery.form.min.js"></script>
+    <script src="/vendor/bootstrap.min.js"></script>
+    <script src="/dropzone.js"></script>
+    <script src="../bower_components/select2/dist/js/select2.min.js"></script>
+    <script type="text/javascript" src="../bower_components/moment/min/moment.min.js"></script>
+    <script type="text/javascript" src="../bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="../bower_components/seiyria-bootstrap-slider/dist/bootstrap-slider.min.js"></script>
+
+	<script src="/socket.io/socket.io.js"></script>
+    <script src="/app.js"></script>
+	{% if session.user != undefined %}
+	<script>
+	var loop = function() {
+		$.post('/update-status');
+	};
+
+	loop();
+	setInterval(loop, 5000);
+
+	var notif = function() {
+		$.get('/notifications', function(data) {
+			$('#content-notifications').html(data);
+			$('.getusername').each(function() {
+				var that = $(this);
+				$.get('/get-username/' + that.text() ,function(datausr) {
+					that.text(datausr);
+				});
+			});
+		});
+	};
+	$('#notifications').click(function (e) {
+		e.preventDefault();
+		$.post('/reset-notifications', function(data) {
+			$('#count-notifications').text(0);
+		});
+		notif();
+	});
+
+	var getNotifs = function() {
+		$.get('/get-notifications',function(data) {
+			$('#count-notifications').text(data);
+		});
+	}
+	getNotifs();
+	setInterval(getNotifs, 5000);
+
+	</script>
+	{% endif %}
+	<script>{% block javascript %}{% endblock %}</script>
+  </body>
+</html>

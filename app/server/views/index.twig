@@ -1,0 +1,55 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+
+      <!-- Jumbotron -->
+      <div class="jumbotron">
+        <h1>Welcome on matcha</h1>
+		<p>find and make the love</p>
+      </div>
+
+<div class="row" id="result"></div>
+
+<div id="out"></div>
+{% endblock %}
+
+{% block javascript %}
+$(document).ready(function() {
+	var output = document.getElementById("out");
+
+	function success(position) {
+		var latitude  = position.coords.latitude;
+		var longitude = position.coords.longitude;
+
+		//output.innerHTML = '<p>Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°</p>';
+		output.innerHTML = '';
+
+		var img = new Image();
+		img.src = "https://maps.googleapis.com/maps/api/staticmap?center=" + latitude + "," + longitude + "&zoom=13&size=1140x300&sensor=false&markers=color:blue%7Clabel:S%48.89,2.319287";
+		img.style.width = '100%';
+
+		output.appendChild(img);
+	};
+
+	function ifnonavigation() {
+		//output.innerHTML = "Unable to retrieve your location";
+		var latitude  = {{ geo.ll[0] }};
+		var longitude = {{ geo.ll[1] }};
+
+		//output.innerHTML = '<p>Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°</p>';
+		output.innerHTML = '';
+
+		var img = new Image();
+		img.src = "https://maps.googleapis.com/maps/api/staticmap?center=" + latitude + "," + longitude + "&zoom=13&size=1140x300&sensor=false";
+		img.style.width = '100%';
+
+		output.appendChild(img);
+
+		$.post('/update-geo', { latitude : latitude, longitude : longitude  });
+	};
+
+	output.innerHTML = "<p>Locating…</p>";
+
+	navigator.geolocation.getCurrentPosition(success, ifnonavigation);
+});
+{% endblock %}

@@ -1,0 +1,35 @@
+<ul>
+
+<li>users who likes me</li>
+{% for likeurMe in notifs.usersWhoLikeMe %}
+<a href="/profile/{{ likeurMe }}">
+	<span class="getusername">{{ likeurMe }}</span>
+</a>
+	-
+{% endfor %}
+
+<li>visit from</li>
+{% for visiteur in notifs.usersVisitedMe %}
+<a href="/profile/{{ visiteur.id }}">
+	{{ visiteur.user }}
+</a>
+	-
+{% endfor %}
+
+<li>users who I can talk too</li>
+{% for likeur in notifs.connectedTo %}
+<a href="/profile/{{ likeur }}">
+	<span class="getusername">{{ likeur }}</span>
+</a>
+	-
+{% endfor %}
+
+<li>messages from</li>
+{% for likeur in notifs.usersMessagesUnread %}
+<a href="/chat/{{ likeur.user }}">
+	{{ likeur.user }}
+</a>
+	-
+{% endfor %}
+
+</ul>

@@ -1,0 +1,11 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+
+	{% for user in history %}
+		<a href="/profile/{{ user.id }}">
+			{{ user.user }}
+		</a>
+	{% endfor %}
+
+{% endblock %}

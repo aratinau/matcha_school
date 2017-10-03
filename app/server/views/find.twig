@@ -1,0 +1,166 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+
+<form method="post" id="form-find">
+
+<div class="form-group">
+<div>
+<label for="">Age</label><br>
+18 years old
+<input id="ex2" type="text" class="" value="" name="age-selected" style="width:85%" data-slider-min="18" data-slider-max="90" data-slider-step="1" data-slider-value="[18,90]"/>
+90 years old
+</div>
+</div>
+
+<div class="form-group">
+<label for="">Popularite</label><br>
+<input id="ex3" type="text" class="" value="" name="pop-selected" style="width:100%" data-slider-min="0" data-slider-max="10000" data-slider-step="1" data-slider-value="[0,10000]"/>
+</div>
+
+<div class="form-group">
+<label for="">Distance (km)</label><br>
+<input id="ex4" type="text" class="" value="" name="dist-selected" style="width:100%" data-slider-min="0" data-slider-max="1000" data-slider-step="1" data-slider-value="500"/>
+
+</div>
+
+<label for="">Tags</label><br>
+<select name="tags" class="form-control select-tag" multiple="multiple">
+{% for tag in tags %}
+	<option value="{{ tag.name }}" 
+	{% for tag_user in user.tags %}
+	{% if tag_user == tag.name %}selected="selected"{% endif %}
+	{% endfor %}
+	>{{ tag.name }}</option>
+{% endfor %}
+</select>
+
+<input type="submit" class="btn btn-default" value="Find the love">
+
+</form>
+
+<p class="text-center">sort by <a href="#" id="sort-age">age</a>, <a href="#" id="sort-localisation">localisation</a>, <a href="#" id="sort-popularite">popularite</a></p>
+
+<div class="row" id="result"></div>
+
+{% endblock %}
+
+{% block javascript %}
+$( document ).ready(function() {
+	$("#ex2").slider({
+	});
+
+	$("#ex3").slider({
+	});
+
+	$("#ex4").slider({
+	});
+
+	$('.select-tag').select2({
+		tags: true,
+		tokenSeparators: [',', ' ']
+	});
+
+	var sort_order = {};
+	sort_order.age = 'asc';
+	sort_order.localisation = 'asc';
+	sort_order.popularite = 'asc';
+	var ordering_age = function () {
+		if (sort_order.age == 'asc')
+		{
+			$(".sort").sort(function(a,b) {
+				return parseInt($(a).attr("data-age")) < parseInt($(b).attr("data-age"));
+			}).each(function() {
+				$("#result").prepend(this);
+			})
+			sort_order.age = 'desc';
+		}
+		else
+		{
+			$(".sort").sort(function(a,b) {
+				return parseInt($(a).attr("data-age")) > parseInt($(b).attr("data-age"));
+			}).each(function() {
+				$("#result").prepend(this);
+			})
+			sort_order.age = 'asc';
+		}
+	};
+	var ordering_localisation = function () {
+		if (sort_order.localisation == 'asc')
+		{
+			$(".sort").sort(function(a,b) {
+				return parseInt($(a).attr("data-localisation")) < parseInt($(b).attr("data-localisation"));
+			}).each(function() {
+				$("#result").prepend(this);
+			})
+			sort_order.localisation = 'desc';
+		}
+		else
+		{
+			$(".sort").sort(function(a,b) {
+				return parseInt($(a).attr("data-localisation")) > parseInt($(b).attr("data-localisation"));
+			}).each(function() {
+				$("#result").prepend(this);
+			})
+			sort_order.localisation = 'asc';
+		}
+	};
+	var ordering_popularite = function () {
+		if (sort_order.popularite == 'asc')
+		{
+			$(".sort").sort(function(a,b) {
+				return parseInt($(a).attr("data-popularite")) < parseInt($(b).attr("data-popularite"));
+			}).each(function() {
+				$("#result").prepend(this);
+			})
+			sort_order.popularite = 'desc';
+		}
+		else
+		{
+			$(".sort").sort(function(a,b) { return parseInt($(a).attr("data-popularite")) > parseInt($(b).attr("data-popularite"));
+			}).each(function() {
+				$("#result").prepend(this);
+			})
+			sort_order.popularite = 'asc';
+		}
+	};
+
+	$('#sort-age').click(function(e) {
+		e.preventDefault();
+		ordering_age();
+	});
+
+	$('#sort-localisation').click(function(e) {
+		e.preventDefault();
+		ordering_localisation();
+	});
+
+	$('#sort-popularite').click(function(e) {
+		e.preventDefault();
+		ordering_popularite();
+	});
+
+	var getFind = function (order) {
+		$("#result").empty();
+
+		/* get some values from elements on the page: */
+		var $form = $('#form-find'),
+		url = '/find';
+
+		/* Send the data using post */
+		var posting = $.post(url, $form.serialize());
+
+		/* Put the results in a div */
+		posting.done(function(data) {
+			$("#result").html(data);
+		});
+
+	};
+
+	$('#form-find').submit(function (e) {
+		e.preventDefault();
+		getFind();
+	});
+	getFind();
+});
+{% endblock %}
